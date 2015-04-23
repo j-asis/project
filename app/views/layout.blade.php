@@ -2,9 +2,9 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        {{ HTML::style("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css") }}
+        {{ HTML::style("css/style.css") }}
         <title>My Project</title>
-        <link rel="stylesheet" href="{{ asset('css/style.css') }}"/>
     </head>
     <body>
 
@@ -20,6 +20,8 @@
               </button>
               <a class="navbar-brand" href="#">Project</a>
             </div>
+
+
             @if (isset($current_user))
             {{ Form::open(array('url'=>'/user/search', 'method'=>'get', 'class'=>'navbar-form navbar-left', 'role'=>'search')) }}
                 <div class="form-group">
@@ -35,6 +37,7 @@
                     <img src="{{ $current_user->avatar }}" class="avatar-mini img-rounded" alt="avatar"/>
                     {{ $current_user->username }} <span class="caret"></span>
                   </a>
+
                   <ul class="dropdown-menu" role="menu">
                     <li><a href="{{ route('edit_profile') }}">Edit Profile</a></li>
                     <li><a href="{{ route('change_password') }}">Change Password</a></li>
@@ -42,12 +45,21 @@
                     <li><a href="{{ route('deactivate') }}">Deactivate Account</a></li>
                   </ul>
                 </li>
-                <li {{ Route::currentRouteName() == 'profile' ? 'class="active"' : '' }}><a href="{{ route('profile', $current_user->id) }}">Home<span class="sr-only">(current)</span></a></li>
-                <li {{ Route::currentRouteName() == 'friend_list' ? 'class="active"' : '' }}><a href="{{ route('friend_list') }}">Friends</a></li>
-                <li><a href="{{ route('logout') }}">Logout</a></li>
+
+                <li {{ Route::currentRouteName() == 'profile' ? 'class="active"' : '' }}>
+                    <a href="{{ route('profile', $current_user->id) }}">Home</a>
+                </li>
+                <li {{ Route::currentRouteName() == 'friend_list' ? 'class="active"' : '' }}>
+                    <a href="{{ route('friend_list') }}">Friends</a>
+                </li>
+                <li>
+                    <a href="{{ route('logout') }}">Logout</a>
+                </li>
+
               </ul>
             </div>
             @endif
+
           </div>
         </nav>
     </div>
@@ -55,7 +67,7 @@
         <div class="container-main container">
             @yield('content')
         </div>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        {{ HTML::script("https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js") }}
+        {{ HTML::script("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js") }}
     </body>
 </html>

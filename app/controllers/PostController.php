@@ -38,7 +38,7 @@ class PostController extends BaseController
         $rules = ['content' => 'required'];
         $validator = Validator::make($input, $rules);
         if ($validator->fails()) {
-            return Redirect::route('edit_post', $input['post_id'])->withErrors($validator)->withInput();
+            return Redirect::route('post_edit', $input['post_id'])->withErrors($validator)->withInput();
         }
         $post = Post::findOrFail($input['post_id']);
         $post->content = $input['content'];

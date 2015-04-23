@@ -2,22 +2,30 @@
 @section('content')
     <div class="profile">
         <p>
-            <img src="{{ $user->avatar }}" alt="Profile Picture" class="avatar img-rounded box-shadow"/> <br/>
-            {{ $user->firstname }} {{ $user->lastname }} ({{ $user->username }}) <br/>
-            email : {{ $user->email }} <br/>
-            with {{ $user->friends()->count() }} friends <br/>
+            <img src="{{ $user->avatar }}" alt="Profile Picture" class="avatar img-rounded box-shadow"/>
+            <br/>
+            {{ $user->firstname }} {{ $user->lastname }} ({{ $user->username }})
+            <br/>
+            email : {{ $user->email }}
+            <br/>
+            with {{ $user->friends()->count() }} friends
+            <br/>
         </p>
     </div>
     <a href="{{ route('post_create', $user->id ) }}" class="btn btn-default btn-sm">Comment</a>
+
     @if ($current_user->id != $user->id)
         @if (isset($friend_list[$user->id]))
-    <a href="{{ route('friend_remove', $user->id) }}" class="btn btn-default btn-sm">Unfriend</a>
+            <a href="{{ route('friend_remove', $user->id) }}" class="btn btn-default btn-sm">Unfriend</a>
         @else
-    <a href="{{ route('friend_add', $user->id) }}" class="btn btn-default btn-sm">Add Friend</a>
+            <a href="{{ route('friend_add', $user->id) }}" class="btn btn-default btn-sm">Add Friend</a>
         @endif
     @endif
+
     <hr/>
+
     {{ $posts->links() }}
+
     <div class="posts">
         <h3>Posts</h3>
         @foreach ($posts as $post)

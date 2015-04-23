@@ -2,6 +2,7 @@
 @section('content')
     {{ Form::open(array('url' => route('register'), 'class' => 'form-register')) }}
         <h2 class="form-signin-heading">User Registration</h2>
+
         {{ HTML::ul($errors->all(), array('class'=>'errors alert alert-danger')) }}
         {{ Form::label('firstname', 'First Name', array('class' => 'sr-only')) }}
         {{ Form::text('firstname', '', array('class' => 'form-control', 'autofocus' , 'placeholder' => 'First Name')) }}

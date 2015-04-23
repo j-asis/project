@@ -25,7 +25,10 @@ class RegisterController extends BaseController
 
         $user = User::where('username', '=', $input['username'])->where('password', '=', $input['password'])->get();
         if ($user[0]->status == "deactivated") {
-            return Redirect::route('login')->withErrors(['your account has been deactivated, please contact the administrator to activate your account']);
+            return Redirect::route('login')
+                ->withErrors(
+                    ['your account has been deactivated, please contact the administrator to activate your account']
+                );
         }
         $id = $user[0]['id'];
         Session::put('user_id', $id);

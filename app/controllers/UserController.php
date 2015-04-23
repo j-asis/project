@@ -3,6 +3,8 @@
 
 class UserController extends BaseController
 {
+    const MAX_FILE_SIZE = 2000000; //2 MB
+
     public function profile(User $user)
     {
         $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(5);
@@ -71,9 +73,9 @@ class UserController extends BaseController
         }
         $user->save();
         $params = array(
-            'message' => 'Successfully Updated Profile',
+            'message'    => 'Successfully Updated Profile',
             'back_title' => 'Own profile',
-            'back_url' => route('profile', $current_user->id)
+            'back_url'   => route('profile', $current_user->id)
         );
         return View::make('success', $params);
     }
@@ -119,12 +121,14 @@ class UserController extends BaseController
     public function saveAvatar()
     {
         $current_user = User::find(Session::get('user_id'));
+
         if (!Input::hasFile('avatar')) {
-            return Redirect::route('upload_avatar');
+            return Redirect::route('upload_avatar')
+                ->withErrors(['Either you uploaded nothing or Uploaded File size too big!']);
         }
         $inputs = Input::all();
         $rules = array(
-            'avatar' => array('image', 'max:2000000')
+            'avatar' => array('image', 'max:'.self::MAX_FILE_SIZE)
         );
 
         $validator = Validator::make($inputs, $rules);
