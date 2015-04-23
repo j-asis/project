@@ -1,0 +1,87 @@
+body, .container, html {
+    background: #FFF;
+}
+
+.form-register, .form-post, .form-signin {
+    max-width: 500px;
+    padding: 15px;
+    margin: 0 auto;
+    border: 1px solid #DDD;
+    border-radius: 5px;
+    background: #FAFAFA;
+}
+
+.form-signin {
+    max-width: 330px;
+}
+
+.form-post {
+    max-width: 800px;
+}
+
+.form-register input, .form-post input, .form-post textarea {
+    margin-bottom: 20px;
+    resize: none;
+    max-height: 100px;
+}
+
+.form-signin input {
+    margin-bottom: 5px;
+}
+
+.avatar {
+    height: 200px;
+    width: 200px;
+}
+
+.container-main {
+    box-shadow: 0px 8px 10px #DDD;
+    padding: 20px;
+}
+
+.post-block {
+    border: 1px solid #EAEAEA;
+    padding: 20px 20px 0px 20px;
+    border-radius: 5px;
+    background: #FAFAFA;
+    margin-bottom: 10px;
+}
+
+.post-block p {
+    padding-left: 10px;
+}
+
+.post-block .date {
+    font-size: 12px;
+    color: #BBB;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    border-top: 1px solid #DDD;
+    display: block;
+}
+
+.post-button {
+    float: right;
+    margin-left:10px;
+    top: 5px;
+}
+
+.avatar-mini {
+    height: 25px;
+    width: 25px;
+}
+.avatar-small {
+    height: 100px;
+    width: 100px;
+}
+
+.user-block {
+    border: 1px solid #DDD;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin: 5px 0px;
+}
+
+.errors {
+    list-style: none;
+}
