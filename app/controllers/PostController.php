@@ -20,12 +20,10 @@ class PostController extends BaseController
         $post->creator = $input['creator'];
         $post->content = htmlspecialchars($input['content']);
         $post->save();
-        $params = array(
-            'message'    => 'Successfully Posted!',
-            'back_title' => 'User\'s Page',
-            'back_url'   => route('profile', $input['user_id'])
-        );
-        return View::make('success', $params);
+        return Redirect::route('success')
+            ->with('message', 'Successfully Posted!')
+            ->with('back_title', 'User\'s Page')
+            ->with('back_url', route('profile', $input['user_id']));
     }
 
     public function edit(Post $post)
@@ -43,28 +41,25 @@ class PostController extends BaseController
         $post = Post::findOrFail($input['post_id']);
         $post->content = $input['content'];
         $post->save();
-        $params = array(
-            'message'    => 'Successfully updated post!',
-            'back_title' => 'User\'s profile',
-            'back_url'   => route('profile', $post->user_id)
-        );
-        return View::make('success', $params);
+
+        return Redirect::route('success')
+            ->with('message', 'Successfully updated post!')
+            ->with('back_title', 'User\'s Profile')
+            ->with('back_url', route('profile', $post->user_id));
     }
 
     public function delete(Post $post)
     {
-        $current_user = User::find(Session::get('user_id'));
-        $params = array(
-            'message'    => 'Successfully Deleted Post!',
-            'back_title' => 'User\'s Profile',
-            'back_url'   => route('profile', $post->user_id)
-        );
+        $current_user = User::find(Auth::id());
+
         if ($current_user->id != $post->creator) {
-            $params['message'] = 'Cannot Delete other users post!';
-            return View::make('success', $params);
+            return Redirect::route('success', $post->user_id);
         }
         $post->delete();
-        return View::make('success', $params);
+        return Redirect::route('success')
+            ->with('message', 'Successfully Deleted Post!')
+            ->with('back_title', 'User\'s Profile')
+            ->with('back_url', route('profile', $post->user_id));
     }
 
 

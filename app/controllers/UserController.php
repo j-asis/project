@@ -8,7 +8,7 @@ class UserController extends BaseController
     public function profile(User $user)
     {
         $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(5);
-        $friends = User::find(Session::get('user_id'))->friends()->get();
+        $friends = User::find(Auth::id())->friends()->get();
         $friend_list = array();
         foreach ($friends as $friend) {
             $friend_list[$friend->friend_id] = true;
@@ -43,27 +43,29 @@ class UserController extends BaseController
     }
     public function update()
     {
-        $current_user = User::find(Session::get('user_id'));
+        $current_user = User::find(Auth::id());
         $inputs = Input::all();
-        $rules = array();
-        //Check if the inputs are changed.
-        $rules['username']  = $inputs['username']  == $current_user->username  ? false : ['required', 'unique:user', 'alpha_dash'];
-        $rules['firstname'] = $inputs['firstname'] == $current_user->firstname ? false : ['required', 'alpha'];
-        $rules['lastname']  = $inputs['lastname']  == $current_user->lastname  ? false : ['required', 'alpha'];
-        $rules['email']     = $inputs['email']     == $current_user->email     ? false : ['required', 'email', 'unique:user'];
-        foreach ($rules as $key => $value) {
-            if ($value === false) {
+
+        $rules = array(
+            'username'  => 'required|unique:user|alpha_dash',
+            'firstname' => 'required|alpha',
+            'lastname'  => 'required|alpha',
+            'email'     => 'required|email|unique:user',
+        );
+
+        //Unset if the inputs are unchanged.
+        foreach ($inputs as $key => $value ) {
+            if ($value == $current_user->$key) {
                 unset($rules[$key]);
             }
         }
-        /*
-         * Return If nothing has been changed
-        */
+        //Return If nothing has been changed
         if (count($rules) == 0) {
             return Redirect::route('edit_profile');
         }
 
         $validator = Validator::make($inputs, $rules);
+        
         if ($validator->fails()) {
             return Redirect::route('edit_profile')->withErrors($validator)->withInput();
         }
@@ -72,12 +74,11 @@ class UserController extends BaseController
             $user->$key = $inputs[$key];
         }
         $user->save();
-        $params = array(
-            'message'    => 'Successfully Updated Profile',
-            'back_title' => 'Own profile',
-            'back_url'   => route('profile', $current_user->id)
-        );
-        return View::make('success', $params);
+
+        return Redirect::route('success')
+            ->with('message', 'Successfully Updated Profile')
+            ->with('back_title', 'Own profile')
+            ->with('back_url', route('profile', $current_user->id));
     }
 
     public function changePassword()
@@ -87,13 +88,13 @@ class UserController extends BaseController
 
     public function savePassword()
     {
-        $current_user = User::find(Session::get('user_id'));
+        $current_user = User::find(Auth::id());
         $inputs = Input::all();
-        $inputs['password'] = md5($inputs['password']);
-        $inputs['original_password'] = $current_user->password;
+        if (!Hash::check($inputs['password'], $current_user->password)) {
+            return Redirect::route('change_password')->withErrors('Wrong Password')->withInput();
+        }
         $rules = array(
             'password'          => array('required'),
-            'original_password' => array('required', 'same:password'),
             'new_password'      => array('required'),
             'confirm_password'  => array('required', 'same:new_password'),
         );
@@ -102,14 +103,13 @@ class UserController extends BaseController
             return Redirect::route('change_password')->withErrors($validator)->withInput();
         }
         $user = User::findOrFail($current_user->id);
-        $user->password = md5($inputs['new_password']);
+        $user->password = Hash::make($inputs['new_password']);
         $user->save();
-        $params = array(
-            'message'    => 'Successfully Changed Password',
-            'back_title' => 'Own profile',
-            'back_url'   => route('profile', $current_user->id)
-        );
-        return View::make('success', $params);
+
+        return Redirect::route('success')
+            ->with('message', 'Successfully Changed Password')
+            ->with('back_title', 'Own profile')
+            ->with('back_url', route('profile', $current_user->id));
     }
 
 
@@ -120,7 +120,7 @@ class UserController extends BaseController
 
     public function saveAvatar()
     {
-        $current_user = User::find(Session::get('user_id'));
+        $current_user = User::find(Auth::id());
 
         if (!Input::hasFile('avatar')) {
             return Redirect::route('upload_avatar')
@@ -148,12 +148,11 @@ class UserController extends BaseController
             $user = User::findOrFail($current_user->id);
             $user->avatar = '/img/'.$filename;
             $user->save();
-            $params = array(
-                'message'    => 'Successfully Uploaded Avatar!',
-                'back_title' => 'Own profile',
-                'back_url'   => route('profile', $current_user->id)
-            );
-            return View::make('success', $params);
+
+            return Redirect::route('success')
+                ->with('message', 'Successfully Uploaded Avatar!')
+                ->with('back_title', 'Own profile')
+                ->with('back_url', route('profile', $current_user->id));
         }
         return Redirect::route('upload_avatar');
     }
@@ -164,7 +163,7 @@ class UserController extends BaseController
     }
     public function saveDeactivate()
     {
-        $current_user = User::find(Session::get('user_id'));
+        $current_user = User::find(Auth::id());
         $is_confirmed = Input::get('value');
         if ($is_confirmed == 'false') {
             return Redirect::route('profile', $current_user->id);

@@ -13,20 +13,21 @@
 //filters
 Route::filter('authenticate', function()
 {
-    if (!Session::has('user_id')) {
+    if (!Auth::check()) {
         return Redirect::route('login');
     }
 });
 
 Route::filter('is_logged', function()
 {
-    if (Session::has('user_id') && Route::currentRouteName() != 'logout') {
-        return Redirect::route('profile', Session::get('user_id'));
+    if (Auth::check() && Route::currentRouteName() != 'logout') {
+        return Redirect::route('profile', Auth::id());
     }
 });
+
 Route::filter('current_user', function()
 {
-    $current_user = User::find(Session::get('user_id'));
+    $current_user = User::find(Auth::id());
     View::share('current_user', $current_user);
 });
 
@@ -48,10 +49,10 @@ Route::group(['before'=>'is_logged'], function()
 });
 
 
-//User Route
-
 Route::group(['before'=>'authenticate|current_user'], function()
 {
+
+    //User Route
     Route::get ('user/profile/{user_id}',  ['as'=>'profile',            'uses'=>'UserController@profile']);
     Route::get ('user/search',             ['as'=>'search',             'uses'=>'UserController@search']);
     Route::get ('user/edit_profile',       ['as'=>'edit_profile',       'uses'=>'UserController@edit']);
@@ -62,29 +63,26 @@ Route::group(['before'=>'authenticate|current_user'], function()
     Route::post('user/save_avatar',        ['as'=>'save_avatar',        'uses'=>'UserController@saveAvatar']);
     Route::get ('user/deactivate',         ['as'=>'deactivate',         'uses'=>'UserController@deactivate']);
     Route::post('user/confirm_deactivate', ['as'=>'confirm_deactivate', 'uses'=>'UserController@saveDeactivate']);
-});
 
-
-//Friend Route
-Route::group(['before'=>'authenticate|current_user'], function()
-{
+    //Friend Route
     Route::get('friend/add/{user_id}',    ['as'=>'friend_add',    'uses'=>'FriendController@addFriend']);
     Route::get('friend/remove/{user_id}', ['as'=>'friend_remove', 'uses'=>'FriendController@unfriend']);
     Route::get('friend/list',             ['as'=>'friend_list',   'uses'=>'FriendController@friends']);
-});
 
-
-//Post Route
-Route::group(['before'=>'authenticate|current_user'], function()
-{
+    //Post Route
     Route::get ('post/create/{user_id}', ['as'=>'post_create', 'uses'=>'PostController@post']);
     Route::post('post/save_create',      ['as'=>'save_create', 'uses'=>'PostController@savePost']);
     Route::get ('post/edit/{post_id}',   ['as'=>'post_edit',   'uses'=>'PostController@edit']);
     Route::post('post/save_edit',        ['as'=>'save_edit',   'uses'=>'PostController@saveEdit']);
     Route::get ('post/delete/{post_id}', ['as'=>'post_delete', 'uses'=>'PostController@delete']);
+
 });
 
 
+    Route::get ('page/success', ['as'=>'success', function()
+    {
+        return View::make('success');
+    }]);
 //model Route
 Route::model('user_id', 'User');
 Route::model('post_id', 'Post');

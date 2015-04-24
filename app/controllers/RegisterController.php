@@ -11,11 +11,12 @@ class RegisterController extends BaseController
     {
         $input = array(
             'username' => Input::get('username'),
-            'password' => empty(Input::get('password')) ? '' : md5(Input::get('password'))
+            'password' => Input::get('password')
         );
+
         $rules = array(
-            'username' => ['required', 'exists:user'],
-            'password' => ['required', 'exists:user']
+            'username' => ['required'],
+            'password' => ['required']
         );
 
         $validator = Validator::make($input, $rules);
@@ -23,16 +24,10 @@ class RegisterController extends BaseController
             return Redirect::route('login')->withErrors($validator)->withInput();
         }
 
-        $user = User::where('username', '=', $input['username'])->where('password', '=', $input['password'])->get();
-        if ($user[0]->status == "deactivated") {
-            return Redirect::route('login')
-                ->withErrors(
-                    ['your account has been deactivated, please contact the administrator to activate your account']
-                );
+        if (Auth::attempt(['username'=>$input['username'], 'password'=>$input['password'], 'status'=>'active'])) {
+            return Redirect::route('profile', Auth::id());
         }
-        $id = $user[0]['id'];
-        Session::put('user_id', $id);
-        return Redirect::route('profile', $id);
+        return Redirect::route('login')->withErrors('Wrong Username or Password')->withInput();
     }
 
     public function signup()
@@ -62,28 +57,28 @@ class RegisterController extends BaseController
         $user->lastname  = htmlspecialchars($input['lastname']);
         $user->email     = htmlspecialchars($input['email']);
         $user->avatar    = '/img/default.jpg';
-        $user->password  = md5($input['password']);
+        $user->password  = Hash::make($input['password']);
         $user->status    = 'active';
         $user->type      = 'user';
         $user->save();
 
-        $params = array(
-            'message'    => 'Successfully Registered!',
-            'back_title' => 'Log In',
-            'back_url'   => route('login')
-        );
-
-        return View::make('success', $params);
+        return Redirect::route('success')
+            ->with('message', 'Successfully Registered!')
+            ->with('back_title', 'Log In')
+            ->with('back_url', route('login'));
     }
 
     public function logout()
     {
-        Session::flush();
-        $params = array(
-            'message'    => 'Successfully Logged out!',
-            'back_title' => 'Log In',
-            'back_url'   => route('login')
-        );
-        return View::make('success', $params);
+        if (Auth::check()) {
+            Auth::logout();
+        }
+        return Redirect::route('login');
+        /*
+        return Redirect::route('success')
+            ->with('message', 'Successfully Logged Out')
+            ->with('back_title', 'Log In')
+            ->with('back_url', route('login'));
+        */
     }
 }
